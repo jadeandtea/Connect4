@@ -1,9 +1,10 @@
+from board import Board
 from ai import AI
 
 if __name__ == "__main__":
     opponent = AI()
 
-    while True:
+    while not opponent.isGame():
         # Main loop:
         #   Take in a column and play it onto the AI's board
         #   The AI class handles the board

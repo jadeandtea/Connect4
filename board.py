@@ -3,11 +3,12 @@ class Board :
     # is represented by a 2d list with 6 rows and 7 columns.
     # 
     # each function is self-explanatory
+    BLANK = '-'
 
     def __init__(self):
         self.data = []
         for i in range(6):
-            self.data.append(['0' for x in range(7)])
+            self.data.append([self.BLANK for x in range(7)])
         self.currentHeight = [5, 5, 5, 5, 5, 5, 5]
         self.previousMoves = []
 
@@ -25,8 +26,10 @@ class Board :
     
     # Probably won't need this
     def undoMove(self):
+        if len(self.previousMoves) == 0:
+            return
         column = self.previousMoves.pop()
-        self.data[self.currentHeight[column]][column] = 0
+        self.data[self.currentHeight[column] + 1][column] = self.BLANK
         self.currentHeight[column] += 1
 
     # Loops through every placed piece to see if there are 3 of the 
