@@ -13,7 +13,7 @@ async def gameloop (socket, created):
 
     match message[0]:
       case 'GAMESTART':
-        col = intelligence.makeMove()
+        col = 3
         await socket.send(f'PLAY:{col}')
       case 'OPPONENT':
         col = intelligence.opponentMove(int(message[1]))

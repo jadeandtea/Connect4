@@ -17,7 +17,6 @@ class AI :
     def opponentMove(self, column):
         if self.board.playMove('x', column) == False:
             return False
-        self.board.printBoard()
         if self.board.checkWin() != False:
             print("You have won!")
             self.win = True
@@ -30,7 +29,7 @@ class AI :
     def scoreBoard(self, column):
         score = 0
         if self.board.playMove('o', column) == False:
-            return -1
+            return self.NEG_INFINITY
         
         self.board.undoMove()
         return column
@@ -75,5 +74,4 @@ class AI :
             
         nextMove = random.randint(0, len(bestMoves) - 1)
         self.board.playMove('o', bestMoves[nextMove])
-        self.board.printBoard()
         return bestMoves[nextMove]
