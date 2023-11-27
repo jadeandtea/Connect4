@@ -15,8 +15,9 @@ class AI :
         self.board.printBoard()
 
     def opponentMove(self, column):
-        if self.board.playMove('o', column) == False:
+        if self.board.playMove('x', column) == False:
             return False
+        self.board.printBoard()
         if self.board.checkWin() != False:
             print("You have won!")
             self.win = True
@@ -28,31 +29,36 @@ class AI :
     #       of a random move
     def scoreBoard(self, column):
         score = 0
+        if self.board.playMove('o', column) == False:
+            return -1
+        
+        self.board.undoMove()
+        return column
         # Simulate a move
-        if self.board.playMove('x', column):
-            # If win, good
-            if self.board.checkWin() == True:
-                return self.INFINITY
+        # if self.board.playMove('x', column):
+        #     # If win, good
+        #     if self.board.checkWin() == True:
+        #         return self.INFINITY
             
-            for i in range(7):
-                self.board.playMove('o', i)
-                for k in range(7):
-                    opponentMoveScore = self.scoreBoard(k)
-                    if opponentMoveScore == False:
-                        return self.NEG_INFINITY
-                    score += opponentMoveScore
-                print(self.board.previousMoves)
-                self.board.printBoard()
-                self.board.undoMove()
+        #     for i in range(7):
+        #         self.board.playMove('o', i)
+        #         for k in range(7):
+        #             opponentMoveScore = self.scoreBoard(k)
+        #             if opponentMoveScore == False:
+        #                 return self.NEG_INFINITY
+        #             score += opponentMoveScore
+        #         print(self.board.previousMoves)
+        #         self.board.printBoard()
+        #         self.board.undoMove()
 
-            # Reset board for further play
-            self.board.undoMove()
+        #     # Reset board for further play
+        #     self.board.undoMove()
 
-            return score 
+        #     return score 
         
         # Cannot simulate move
-        else:
-            return False
+        # else:
+        #     return False
 
     def makeMove(self):
         bestScore = 0
@@ -68,4 +74,6 @@ class AI :
                 bestMoves.append(i)
             
         nextMove = random.randint(0, len(bestMoves) - 1)
+        self.board.playMove('o', bestMoves[nextMove])
+        self.board.printBoard()
         return bestMoves[nextMove]

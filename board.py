@@ -24,7 +24,6 @@ class Board :
         self.previousMoves.append(column)
         return True
     
-    # Probably won't need this
     def undoMove(self):
         if len(self.previousMoves) == 0:
             return
