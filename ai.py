@@ -22,14 +22,37 @@ class AI :
             self.win = True
             return True
 
-        self.makeMove()
-        return True
+        return self.makeMove()
     
     # TODO: Make the AI make an intelligent move instead 
     #       of a random move
     def scoreBoard(self, column):
         score = 0
-        return score
+        # Simulate a move
+        if self.board.playMove('x', column):
+            # If win, good
+            if self.board.checkWin() == True:
+                return self.INFINITY
+            
+            for i in range(7):
+                self.board.playMove('o', i)
+                for k in range(7):
+                    opponentMoveScore = self.scoreBoard(k)
+                    if opponentMoveScore == False:
+                        return self.NEG_INFINITY
+                    score += opponentMoveScore
+                print(self.board.previousMoves)
+                self.board.printBoard()
+                self.board.undoMove()
+
+            # Reset board for further play
+            self.board.undoMove()
+
+            return score 
+        
+        # Cannot simulate move
+        else:
+            return False
 
     def makeMove(self):
         bestScore = 0
@@ -44,7 +67,5 @@ class AI :
             elif score == bestScore:
                 bestMoves.append(i)
             
-        print(bestMoves)
         nextMove = random.randint(0, len(bestMoves) - 1)
-        if (self.board.playMove('x', bestMoves[nextMove]) == False):
-            self.makeMove()
+        return bestMoves[nextMove]
