@@ -22,8 +22,6 @@ class AI :
             print("You have won!")
             self.win = True
             return True
-
-        return self.makeMove()
     
     # TODO: Make the AI make an intelligent move instead 
     #       of a random move
@@ -49,7 +47,6 @@ class AI :
                     continue
                 
                 nextMoveScore = self.searchBest(depth - 1, alpha, beta, False)[1]
-                print (nextMoveScore)
                 self.board.undoMove()
 
                 if nextMoveScore > score:
@@ -76,7 +73,7 @@ class AI :
                     alpha = score
                     bestColumn = i
 
-                if alpha >= beta:
+                if alpha <= beta:
                     break
 
             return (bestColumn, score)
@@ -85,7 +82,6 @@ class AI :
         score = 0
         for col in range(7):
             for row in range(self.board.currentHeight[col] + 1, 6):
-                print ("checking", row, col)
                 if (col == 3 and self.board.data[row][col] == 'o'):
                     score += 3
                 score += self.scorePoint(row, col)
@@ -93,28 +89,45 @@ class AI :
 
     def scorePoint(self, row, col):
         score = 0
-        directions = ((1, 0), (1, 1), (1, -1), (0, -1))
+        directions = ((1, 0), (1, 1), (1, -1), (0, -1), (0, 1), (-1, 0), (-1, 1), (-1, -1))
         for dx, dy in directions:
             pieces = []
 
             for i in range(0, 4):
                 if (col + (dx * i) < 0 or col + (dx * i) > 6
                     or row + (dy * i) < 0 or row + (dy * i) > 5):
-                    checkPieces = False
                     break
                 pieces.append(self.board.data[row + (dy*i)][col + (dx*i)])
+            if len(pieces) != 4:
+                continue
 
             if pieces.count('o' == 4):
                 score += 100
-            elif (pieces.count('o' == 3) and pieces.count(self.board.BLANK == 1)):
+            elif (pieces.count('o') == 3 and pieces.count(self.board.BLANK) == 1):
                 score += 5
-            elif (pieces.count('o' == 2) and pieces.count(self.board.BLANK == 2)):
+            elif (pieces.count('o') == 2 and pieces.count(self.board.BLANK) == 2):
                 score += 2
-            elif (pieces.count('x' == 3) and pieces.count(self.board.BLANK == 1)):
-                score -= 4
+            elif (pieces.count('x') == 3 and pieces.count(self.board.BLANK) == 1):
+                score -= 2
+            elif (pieces.count('x') == 3 and pieces.count('o') == 1):
+                score += 15
+            elif (pieces.count('x') == 4):
+                return self.NEG_INFINITY
         return score
+    
+    def makeRandomMove(self):
+        options = []
+        for i in range(7):
+            if self.board.currentHeight != -1:
+                options.append(i)
+
+        col = options[random.randint(0, len(options) - 1)]
+        
+        self.board.playMove('o', col)
+        
+        return col
 
     def makeMove(self):
-        nextMove, score = self.searchBest(1, self.POS_INFINITY, self.NEG_INFINITY, True)
+        nextMove, score = self.searchBest(5, self.POS_INFINITY, self.NEG_INFINITY, True)
         self.board.playMove('o', nextMove)
         return nextMove, score

@@ -13,26 +13,38 @@ async def gameloop (socket, created):
 
   while active:
     message = (await socket.recv()).split(':')
+    print (message)
 
     match message[0]:
       case 'GAMESTART':
         col = 3
         await socket.send(f'PLAY:{col}')
       case 'OPPONENT':
-        col = intelligence.opponentMove(int(message[1]))
+        intelligence.opponentMove(int(message[1]))
 
-        await socket.send(f'PLAY:{col}')
+        column, score = intelligence.makeMove()
+        print(score)
+
+        await socket.send(f'PLAY:{column}')
+      case 'ERROR':
+        errMsg = message[1]
+        if errMsg == 'not current turn':
+          continue
+        column = intelligence.makeRandomMove()
+
+        await socket.send(f'PLAY:{column}')
       case 'WIN' | 'LOSS' | 'DRAW' | 'TERMINATED':
         print(message[0])
 
         active = False
 
 async def create_game ():
-  async with websockets.connect(f'ws://neumaa2.stu.rpi.edu:5000/create') as socket:
+  async with websockets.connect(f'ws://localhost:5000/create') as socket:
     await gameloop(socket, True)
 
 async def join_game(id):
-  async with websockets.connect(f'ws://neumaa2.stu.rpi.edu:5000/join/{id}') as socket:
+  #async with websockets.connect(f'ws://neumaa2.stu.rpi.edu:5000/join/{id}') as socket:
+  async with websockets.connect(f'ws://localhost:5000/join/{id}') as socket:
     await gameloop(socket, False)
 
 async def local_loop():
