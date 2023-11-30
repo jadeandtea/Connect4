@@ -16,6 +16,11 @@ class Board :
         for x in self.data:
             print(x)
 
+    def printBackend(self):
+        print("Blank character:", self.BLANK)
+        print("Current column heights:", self.currentHeight)
+        print("Move Order:", self.previousMoves)
+
     def playMove(self, player, column):
         if self.currentHeight[column] == -1:
             return False
@@ -63,6 +68,30 @@ class Board :
             if found:
                 return player
         return False
+    
+    def winningMove(self, column):
+        colStart = column
+        rowStart = self.currentHeight[column]
+        player = self.data[rowStart][colStart]
+        if player == self.BLANK:
+            return False
+        directions = ((1, 1), (1, 0), (1, -1), (0, 1), (0, -1), (-1, 1), (-1, 0), (-1, -1))
+        for dx, dy in directions:
+            found = True
+            for i in range(1, 4):
+                if (colStart + (dx * i) < 0 or colStart + (dx * i) > 6
+                    or rowStart + (dy * i) < 0 or rowStart + (dy * i) > 5):
+                    found = False
+                    break
+                if (self.data[rowStart + (dy*i)][colStart + (dx*i)] != player):
+                    found = False
+                    break
+            if found:
+                return player
+            
+    def isFull(self):
+        fullBoard = [-1, -1, -1, -1, -1, -1, -1]
+        return self.currentHeight == fullBoard
 
     def copyBoard(self):
         return self.data.copy()

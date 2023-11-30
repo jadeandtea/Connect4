@@ -1,15 +1,16 @@
+import asyncio
 from board import Board
 import random
 
 class AI :
-    NEG_INFINITY = -99999999
-    INFINITY = 9999999999
+    NEG_INFINITY = -999999999
+    POS_INFINITY =  999999999
     def __init__(self):
         self.win = False
         self.board = Board()
 
     def isGame(self):
-        return self.win
+        return self.board.checkWin()
 
     def printBoard(self):
         self.board.printBoard()
@@ -26,52 +27,94 @@ class AI :
     
     # TODO: Make the AI make an intelligent move instead 
     #       of a random move
-    def scoreBoard(self, column):
+    def searchBest(self, depth, alpha, beta, maximizing):
+        for i in range(7):
+            winningPlayer = self.board.winningMove(i)
+            if winningPlayer == 'o':
+                return (i, self.POS_INFINITY)
+            elif winningPlayer == 'x':
+                return (i, self.NEG_INFINITY)
+        
+        if self.board.isFull():
+            return (False, 0)
+
+        if depth == 0:
+            return (3, self.scoreBoard())
+        
+        if maximizing:
+            score = self.NEG_INFINITY
+            bestColumn = 3
+            for i in range(7):
+                if self.board.playMove('o', i) == False:
+                    continue
+                
+                nextMoveScore = self.searchBest(depth - 1, alpha, beta, False)[1]
+                print (nextMoveScore)
+                self.board.undoMove()
+
+                if nextMoveScore > score:
+                    score = nextMoveScore
+                    alpha = score
+                    bestColumn = i
+
+                if alpha <= beta:
+                    break
+
+            return (bestColumn, score)
+        else:
+            score = self.POS_INFINITY
+            bestColumn = 3
+            for i in range(7):
+                if self.board.playMove('x', i) == False:
+                    continue
+
+                nextMoveScore = self.searchBest(depth - 1, alpha, beta, True)[1]
+                self.board.undoMove()
+
+                if nextMoveScore < score:
+                    score = nextMoveScore
+                    alpha = score
+                    bestColumn = i
+
+                if alpha >= beta:
+                    break
+
+            return (bestColumn, score)
+
+    def scoreBoard(self):
         score = 0
-        if self.board.playMove('o', column) == False:
-            return self.NEG_INFINITY
-        
-        self.board.undoMove()
-        return column
-        # Simulate a move
-        # if self.board.playMove('x', column):
-        #     # If win, good
-        #     if self.board.checkWin() == True:
-        #         return self.INFINITY
-            
-        #     for i in range(7):
-        #         self.board.playMove('o', i)
-        #         for k in range(7):
-        #             opponentMoveScore = self.scoreBoard(k)
-        #             if opponentMoveScore == False:
-        #                 return self.NEG_INFINITY
-        #             score += opponentMoveScore
-        #         print(self.board.previousMoves)
-        #         self.board.printBoard()
-        #         self.board.undoMove()
+        for col in range(7):
+            for row in range(self.board.currentHeight[col] + 1, 6):
+                print ("checking", row, col)
+                if (col == 3 and self.board.data[row][col] == 'o'):
+                    score += 3
+                score += self.scorePoint(row, col)
+        return score
 
-        #     # Reset board for further play
-        #     self.board.undoMove()
+    def scorePoint(self, row, col):
+        score = 0
+        directions = ((1, 0), (1, 1), (1, -1), (0, -1))
+        for dx, dy in directions:
+            pieces = []
 
-        #     return score 
-        
-        # Cannot simulate move
-        # else:
-        #     return False
+            for i in range(0, 4):
+                if (col + (dx * i) < 0 or col + (dx * i) > 6
+                    or row + (dy * i) < 0 or row + (dy * i) > 5):
+                    checkPieces = False
+                    break
+                pieces.append(self.board.data[row + (dy*i)][col + (dx*i)])
+
+            if pieces.count('o' == 4):
+                score += 100
+            elif (pieces.count('o' == 3) and pieces.count(self.board.BLANK == 1)):
+                score += 5
+            elif (pieces.count('o' == 2) and pieces.count(self.board.BLANK == 2)):
+                score += 2
+            elif (pieces.count('x' == 3) and pieces.count(self.board.BLANK == 1)):
+                score -= 4
+        return score
 
     def makeMove(self):
-        bestScore = 0
-        bestMoves = []
-        for i in range(7):
-            score = self.scoreBoard(i)
-            print("Score for column", i, score)
-            if score > bestScore:
-                bestScore = score
-                bestMoves.clear()
-                bestMoves.append(i)
-            elif score == bestScore:
-                bestMoves.append(i)
-            
-        nextMove = random.randint(0, len(bestMoves) - 1)
-        self.board.playMove('o', bestMoves[nextMove])
-        return bestMoves[nextMove]
+        nextMove, score = self.searchBest(1, self.POS_INFINITY, self.NEG_INFINITY, True)
+        self.board.playMove('o', nextMove)
+        return nextMove, score

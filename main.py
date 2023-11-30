@@ -4,6 +4,9 @@ from ai import AI
 import asyncio
 import websockets
 
+POS_INFINITY =  999999999
+NEG_INFINITY = -999999999
+
 async def gameloop (socket, created):
   active = True
   intelligence = AI()
@@ -32,6 +35,20 @@ async def join_game(id):
   async with websockets.connect(f'ws://neumaa2.stu.rpi.edu:5000/join/{id}') as socket:
     await gameloop(socket, False)
 
+async def local_loop():
+  opponent = AI()
+  while not opponent.isGame():
+    opponent.board.printBackend()
+    inputString = input("Enter a column: ")
+    if (inputString == "exit"):
+        exit()
+    playerColumn = int(inputString)
+    opponent.board.playMove('x', playerColumn)
+    AIColumn, score = opponent.makeMove()
+    print(AIColumn)
+    print(score)
+    opponent.printBoard()
+
 if __name__ == '__main__':
   protocol = input('Join game or create game? (j/c): ').strip()
 
@@ -40,7 +57,10 @@ if __name__ == '__main__':
       asyncio.run(create_game())
     case 'j':
       id = input('Game ID: ').strip()
-
+      
       asyncio.run(join_game(id))
+    case 'm':
+      asyncio.run(local_loop())
+
     case _:
       print('Invalid protocol!')
