@@ -14,10 +14,12 @@ async def gameloop (socket, created):
   while active:
     message = (await socket.recv()).split(':')
     print (message)
+    intelligence.printBoard()    
 
     match message[0]:
       case 'GAMESTART':
         col = 3
+        intelligence.board.playMove('o', 3)
         await socket.send(f'PLAY:{col}')
       case 'OPPONENT':
         intelligence.opponentMove(int(message[1]))

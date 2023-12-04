@@ -26,23 +26,34 @@ class AI :
     # TODO: Make the AI make an intelligent move instead 
     #       of a random move
     def searchBest(self, depth, alpha, beta, maximizing):
+        opponentWillWin = -1
         for i in range(7):
             winningPlayer = self.board.winningMove(i)
-            if winningPlayer == 'o':
+
+            if winningPlayer == 'o' and maximizing:
                 return (i, self.POS_INFINITY)
-            elif winningPlayer == 'x':
-                return (i, self.NEG_INFINITY)
+            elif winningPlayer == 'o' and not maximizing:
+                opponentWillWin = i
+            elif winningPlayer == 'x' and maximizing:
+                opponentWillWin = i
+            elif winningPlayer == 'x' and not maximizing:
+                return (opponentWillWin, self.NEG_INFINITY)
+        if opponentWillWin != -1 and maximizing:
+            return (opponentWillWin, self.POS_INFINITY)
+        elif opponentWillWin != -1 and not maximizing:
+            return (opponentWillWin, self.NEG_INFINITY)
         
         if self.board.isFull():
             return (False, 0)
 
         if depth == 0:
-            return (3, self.scoreBoard())
+            return (-1, self.scoreBoard())
         
+        moveOrder = [3, 2, 4, 1, 5, 0, 6]
         if maximizing:
             score = self.NEG_INFINITY
             bestColumn = 3
-            for i in range(7):
+            for i in moveOrder:
                 if self.board.playMove('o', i) == False:
                     continue
                 
@@ -61,7 +72,7 @@ class AI :
         else:
             score = self.POS_INFINITY
             bestColumn = 3
-            for i in range(7):
+            for i in moveOrder:
                 if self.board.playMove('x', i) == False:
                     continue
 
@@ -109,6 +120,8 @@ class AI :
                 score += 2
             elif (pieces.count('x') == 3 and pieces.count(self.board.BLANK) == 1):
                 score -= 2
+            elif (pieces.count('x') == 2 and pieces.count(self.board.BLANK) == 2):
+                score -= 9
             elif (pieces.count('x') == 3 and pieces.count('o') == 1):
                 score += 15
             elif (pieces.count('x') == 4):

@@ -72,10 +72,10 @@ class Board :
     def winningMove(self, column):
         colStart = column
         rowStart = self.currentHeight[column]
-        player = self.data[rowStart][colStart]
-        if player == self.BLANK:
+        if rowStart == -1:
             return False
-        directions = ((1, 1), (1, 0), (1, -1), (0, 1), (0, -1), (-1, 1), (-1, 0), (-1, -1))
+
+        directions = ((1, 1), (1, 0), (1, -1), (0, -1), (0, 1), (-1, 1), (-1, -1))
         for dx, dy in directions:
             found = True
             for i in range(1, 4):
@@ -83,11 +83,16 @@ class Board :
                     or rowStart + (dy * i) < 0 or rowStart + (dy * i) > 5):
                     found = False
                     break
+                player = self.data[rowStart + dy][colStart + dx]
+                if player == self.BLANK:
+                    found = False
+                    break
                 if (self.data[rowStart + (dy*i)][colStart + (dx*i)] != player):
                     found = False
                     break
             if found:
                 return player
+        return False
             
     def isFull(self):
         fullBoard = [-1, -1, -1, -1, -1, -1, -1]
