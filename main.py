@@ -40,13 +40,14 @@ async def gameloop (socket, created):
 
         active = False
 
-async def create_game ():
-  async with websockets.connect(f'ws://localhost:5000/create') as socket:
+async def create_game (server):
+  #server = 128.113.139.63:5000
+  async with websockets.connect(f'ws://{server}/create') as socket:
     await gameloop(socket, True)
 
-async def join_game(id):
-  #async with websockets.connect(f'ws://neumaa2.stu.rpi.edu:5000/join/{id}') as socket:
-  async with websockets.connect(f'ws://localhost:5000/join/{id}') as socket:
+async def join_game(server, id):
+  #server = 128.113.139.63:5000
+  async with websockets.connect(f'ws://{server}/join/{id}') as socket:
     await gameloop(socket, False)
 
 async def local_loop():
@@ -64,15 +65,16 @@ async def local_loop():
     opponent.printBoard()
 
 if __name__ == '__main__':
+  server = input('Server ID:').strip()
   protocol = input('Join game or create game? (j/c): ').strip()
 
   match protocol:
     case 'c':
-      asyncio.run(create_game())
+      asyncio.run(create_game(server))
     case 'j':
       id = input('Game ID: ').strip()
       
-      asyncio.run(join_game(id))
+      asyncio.run(join_game(server, id))
     case 'm':
       asyncio.run(local_loop())
 

@@ -115,15 +115,13 @@ class AI :
             if pieces.count('o' == 4):
                 score += 100
             elif (pieces.count('o') == 3 and pieces.count(self.board.BLANK) == 1):
-                score += 5
+                score += 9
             elif (pieces.count('o') == 2 and pieces.count(self.board.BLANK) == 2):
-                score += 2
+                score += 4
             elif (pieces.count('x') == 3 and pieces.count(self.board.BLANK) == 1):
                 score -= 2
             elif (pieces.count('x') == 2 and pieces.count(self.board.BLANK) == 2):
                 score -= 9
-            elif (pieces.count('x') == 3 and pieces.count('o') == 1):
-                score += 15
             elif (pieces.count('x') == 4):
                 return self.NEG_INFINITY
         return score
